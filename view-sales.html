@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Sales Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            min-height: 100vh;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .filter-container div,
+        .filter-container select,
+        .filter-container input {
+            flex: 1;
+            min-width: 180px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .download-btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .clear-btn, .delete-btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .clear-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #f57c00;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            table th, table td {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .download-btn, .clear-btn, .delete-btn {
+                width: 100%;
+            }
+
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-container div,
+            .filter-container select,
+            .filter-container input {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            table th, table td {
+                font-size: 10px;
+                padding: 6px;
+            }
+
+            .download-btn, .clear-btn, .delete-btn {
+                width: 100%;
+            }
+
+            .filter-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sales Entries</h1>
+
+        <div class="filter-container">
+            <div>
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+            <div>
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+            <div>
+                <select id="itemFilter">
+                    <option value="">All Items</option>
+                    <option value="Brake Pad">Brake Pad</option>
+                    <option value="Oil Filter">Oil Filter</option>
+                    <option value="Spark Plug">Spark Plug</option>
+                    <option value="Battery">Battery</option>
+                </select>
+            </div>
+            <button class="clear-btn" onclick="clearAllData()">Clear All Data</button>
+        </div>
+
+        <table id="salesTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total Value</th>
+                    <th>Customer Name</th>
+                    <th>Contact</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data rows will go here -->
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="4" style="text-align: right;">Total Value:</td>
+                    <td id="totalSum" colspan="3"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <button class="download-btn" onclick="downloadPDF()">Download PDF</button>
+    </div>
+
+    <script>
+        const salesData = JSON.parse(localStorage.getItem("salesData")) || [];
+        const salesTableBody = document.getElementById("salesTable").getElementsByTagName("tbody")[0];
+        const itemFilter = document.getElementById("itemFilter");
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+        const totalSumElement = document.getElementById("totalSum");
+
+        let totalSum = 0;
+
+        // Function to display the data based on filters
+        function displayData() {
+            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+            const filterItem = itemFilter.value;
+
+            salesTableBody.innerHTML = ""; // Clear previous rows
+            totalSum = 0;
+
+            const filteredData = salesData.filter(entry => {
+                const entryDate = new Date(entry.date);
+                const isItemMatch = filterItem ? entry.item === filterItem : true;
+                const isDateMatch = (startDate ? entryDate >= startDate : true) && (endDate ? entryDate <= endDate : true);
+
+                return isItemMatch && isDateMatch;
+            });
+
+            filteredData.forEach((entry, index) => {
+                const row = salesTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.item}</td>
+                    <td>${entry.qty}</td>
+                    <td>${entry.price}</td>
+                    <td>${entry.totalValue}</td>
+                    <td>${entry.customerName}</td>
+                    <td>${entry.contact}</td>
+                    <td><button class="delete-btn" onclick="deleteEntry(${index})">Delete</button></td>
+                `;
+
+                totalSum += parseFloat(entry.totalValue);
+            });
+
+            totalSumElement.textContent = totalSum.toFixed(2);
+        }
+
+        // Event listeners for filters
+        startDateInput.addEventListener("change", displayData);
+        endDateInput.addEventListener("change", displayData);
+        itemFilter.addEventListener("change", displayData);
+
+        // Function to delete an entry from localStorage
+        function deleteEntry(index) {
+            // Remove the entry from the salesData array
+            salesData.splice(index, 1);
+            // Update localStorage with the new data
+            localStorage.setItem("salesData", JSON.stringify(salesData));
+            // Refresh the table to reflect the changes
+            displayData();
+        }
+
+        // Function to clear all data in localStorage
+        function clearAllData() {
+            localStorage.removeItem("salesData");
+            alert("All data cleared!");
+            displayData(); // Refresh data to show an empty table
+        }
+
+        // Function to download the sales data as a PDF
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Add title
+            doc.setFontSize(18);
+            doc.text('Sales Entries', 14, 16);
+
+            // Define table headers
+            const headers = ['Date', 'Item', 'Quantity', 'Price', 'Total Value', 'Customer Name', 'Contact'];
+
+            // Prepare data for the table
+            const data = salesData.map(entry => [
+                entry.date, entry.item, entry.qty, entry.price, entry.totalValue, entry.customerName, entry.contact
+            ]);
+
+            // Add table using jsPDF autoTable plugin
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 20, // Starting position of the table
+                theme: 'grid',
+                margin: { top: 20 },
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 2,
+                    overflow: 'linebreak',
+                    halign: 'center',
+                    valign: 'middle',
+                },
+                headStyles: {
+                    fillColor: [22, 160, 133], // Custom header color (optional)
+                    textColor: 255, // White text color in header
+                    fontSize: 12
+                },
+                bodyStyles: {
+                    textColor: [0, 0, 0], // Black text in body
+                    fontSize: 10
+                },
+            });
+
+            // Add total value at the bottom of the table
+            const totalValueY = doc.lastAutoTable.finalY + 10; // Position after the table
+            doc.text(`Total Value: ${totalSum.toFixed(2)}`, 14, totalValueY);
+
+            // Save the generated PDF
+            doc.save('sales-data.pdf');
+        }
+
+        // Initial display of all data
+        displayData();
+
+        // Real-time updates: Check for updates every 2 seconds and refresh data
+        setInterval(displayData, 2000);
+    </script>
+
+</body>
+</html>

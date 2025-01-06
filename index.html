@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AZ Motor Spare Sales Entry</title>
+    <style>
+        /* Styles for the sales entry page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        img {
+            display: block;
+            margin: 10px auto;
+            max-width: 150px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #b61f1f;
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #6b6262;
+        }
+
+        .item-image {
+            width: 100%;
+            height: auto;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .total-value {
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>AZ Motor Spare Sales Entry</h1>
+        <img src="555-removebg-preview.png" alt="AZ Motor Spare Logo">
+        <form id="salesForm">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="item">Select Item:</label>
+            <select id="item" name="item" onchange="showItemImage()" required>
+                <option value="">Select Item</option>
+                <option value="SIDE MIRROR RECTANGLE -  BLACK">SIDE MIRROR RECTANGLE -  BLACK</option>
+                <option value="SIDE MIRROR RECTANGLE -  CARBON">SIDE MIRROR RECTANGLE -  CARBON</option>
+                <option value="SIDE MIRROR UNIVERSAL -  BLACK">SIDE MIRROR UNIVERSAL -  BLACK</option>
+                <option value="SIDE MIRROR UNIVERSAL -  RED">SIDE MIRROR UNIVERSAL -  RED</option>
+                <option value="GN125 DIGITAL METER">GN125 DIGITAL METER</option>
+                <option value="GN125 SIGNAL LIGHT">GN125 SIGNAL LIGHT</option>
+                <option value="GN125 TWIN TAIL LIGHT BLACK">GN125 TWIN TAIL LIGHT BLACK</option>
+                <option value="UNIVERSAL HANDLE BALANCER ALLOY BAR END - RED">UNIVERSAL HANDLE BALANCER ALLOY BAR END - RED</option>
+                <option value="UNIVERSAL HANDLE BALANCER ALLOY BAR END - BLACK">UNIVERSAL HANDLE BALANCER ALLOY BAR END - BLACK</option>
+                <option value="UNIVERSAL GRIP COVER">UNIVERSAL GRIP COVER</option>
+                <option value="HONDA AIRBLADE SIDE MIRROR CARBON">HONDA AIRBLADE SIDE MIRROR CARBON</option>
+                <option value="HONDA AIRBLADE SIDE MIRROR BLACK">HONDA AIRBLADE SIDE MIRROR BLACK</option>
+            </select>
+
+            <img id="itemImage" class="item-image" src="" alt="Item Image">
+
+            <label for="qty">Quantity:</label>
+            <input type="number" id="qty" name="qty" required>
+
+            <label for="price">Price per Item:</label>
+            <input type="number" id="price" name="price" required>
+
+            <label for="customerName">Customer Name:</label>
+            <input type="text" id="customerName" name="customerName" required>
+
+            <label for="contact">Contact:</label>
+            <input type="text" id="contact" name="contact" required>
+
+            <div class="total-value">
+                Total Value: <span id="totalValue">0</span>
+            </div>
+
+            <button type="submit">Save Entry</button>
+        </form>
+    </div>
+
+    <script>
+        let selectedItem = "";
+
+        function showItemImage() {
+            const item = document.getElementById("item").value;
+            const itemImage = document.getElementById("itemImage");
+
+            if (item) {
+                selectedItem = item;
+                let imageUrl = "";
+
+                switch (item) {
+                    case "SIDE MIRROR RECTANGLE -  BLACK":
+                        imageUrl = "https://m.media-amazon.com/images/I/511L62-yx7L._AC_UF350,350_QL80_.jpg";
+                        break;
+                    case "SIDE MIRROR RECTANGLE -  CARBON":
+                        imageUrl = "RECTANGLE MIRROR 2.png";
+                        break;
+                    case "SIDE MIRROR UNIVERSAL -  BLACK":
+                        imageUrl = "Untitled-2.png";
+                        break;
+                    case "SIDE MIRROR UNIVERSAL -  RED":
+                        imageUrl = "UniversalMirror.png";
+                        break;
+                        case "GN125 DIGITAL METER":
+                        imageUrl = "GN125 Digital Meter 3.png";
+                        break;
+                        case "GN125 SIGNAL LIGHT":
+                        imageUrl = "Signal Light GN125.jpg";
+                        break;
+                        case "GN125 TWIN TAIL LIGHT BLACK":
+                        imageUrl = "https://via.placeholder.com/400x200?text=Battery";
+                        break;
+                        case "UNIVERSAL HANDLE BALANCER ALLOY BAR END - RED":
+                        imageUrl = "8.jpg";
+                        break;
+                        case "UNIVERSAL HANDLE BALANCER ALLOY BAR END - BLACK":
+                        imageUrl = "END BAR.png";
+                        break;
+                        case "UNIVERSAL GRIP COVER":
+                        imageUrl = "Untitled-1.png";
+                        break;
+                        case "HONDA AIRBLADE SIDE MIRROR CARBON":
+                        imageUrl = "AIR B MIRROR carbon.png";
+                        break;
+                        case "HONDA AIRBLADE SIDE MIRROR BLACK":
+                        imageUrl = "AIR B MIRROR.png";
+                        break;
+                }
+
+                itemImage.src = imageUrl;
+                itemImage.style.display = "block";
+            } else {
+                itemImage.style.display = "none";
+            }
+        }
+
+        document.getElementById("qty").addEventListener("input", calculateTotal);
+        document.getElementById("price").addEventListener("input", calculateTotal);
+
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById("qty").value) || 0;
+            const price = parseFloat(document.getElementById("price").value) || 0;
+            const total = qty * price;
+            document.getElementById("totalValue").textContent = total.toFixed(2);
+        }
+
+        document.getElementById("salesForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            if (!selectedItem) {
+                alert("Please select an item.");
+                return;
+            }
+
+            const formData = {
+                date: document.getElementById("date").value,
+                item: selectedItem,
+                qty: document.getElementById("qty").value,
+                price: document.getElementById("price").value,
+                totalValue: document.getElementById("totalValue").textContent,
+                customerName: document.getElementById("customerName").value,
+                contact: document.getElementById("contact").value,
+            };
+
+            // Save data in localStorage for demo purposes
+            let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
+            salesData.push(formData);
+            localStorage.setItem("salesData", JSON.stringify(salesData));
+
+            alert("Sales Entry Saved!");
+            // Redirect to the data display page
+            window.location.href = "view-sales.html";
+        });
+    </script>
+</body>
+</html>
